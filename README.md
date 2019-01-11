@@ -93,27 +93,113 @@ Code Samples
 
 
 ```r
-### Q-Q PLOTS ###series = gdplogdf.iloc[0].valuesseries = series[~np.isnan(series)]somedata = stats.probplot(series,dist="norm",plot=pylab)### LINEAR REGRESSION ###import pandas as pdfrom sklearn import linear_model# Linear Regressionfor country in countries[countries!="Czech Republic"]:    somedf=pd.concat([gdplogdf[[country]],emissionslogdf[[country]]],axis=1)    otherdf=somedf.dropna()    regression = linear_model.LinearRegression()    regression.fit(otherdf[[0]].values,otherdf[[1]].values)    missing=somedf[np.isnan(somedf[[1]].values)]    missing[[1]]=regression.intercept_+regression.coef_*missing[[0]].values    emissionslogdf[[country]]=emissionslogdf[[country]].fillna(missing[[1]])### CONFIDENCE INTERVALS ###newemissionsdf # CO2/Capitagdplogdf # GDP/Capitanewemissionsdf.__delitem__('Czech Republic') # remove Czech Republicgdplogdf.__delitem__('Czech Republic') # remove Czech Republic# Emission/Capita for NATO countriesnewemissionsdf['Sum']=newemissionsdf.sum(axis=1,skipna=True)
-# get the sum of countries for each yearnewemissionsdf['Avg']=newemissionsdf.Sum/28
+### Q-Q PLOTS ###
+series = gdplogdf.iloc[0].values
+series = series[~np.isnan(series)]
+somedata = stats.probplot(series,dist="norm",plot=pylab)
+
+### LINEAR REGRESSION ###
+import pandas as pd
+from sklearn import linear_model
+# Linear Regression
+for country in countries[countries!="Czech Republic"]:
+   somedf=pd.concat([gdplogdf[[country]],emissionslogdf[[country]]],axis=1)
+   otherdf=somedf.dropna()
+   regression = linear_model.LinearRegression()
+   regression.fit(otherdf[[0]].values,otherdf[[1]].values)    
+   missing=somedf[np.isnan(somedf[[1]].values)]    
+   missing[[1]]=regression.intercept_+regression.coef_*missing[[0]].values    
+   emissionslogdf[[country]]=emissionslogdf[[country]].fillna(missing[[1]])
+
+### CONFIDENCE INTERVALS ###
+newemissionsdf # CO2/Capita
+gdplogdf # GDP/Capita
+newemissionsdf.__delitem__('Czech Republic') # remove Czech Republic
+gdplogdf.__delitem__('Czech Republic') # remove Czech Republic
+
+# Emission/Capita for NATO
+countriesnewemissionsdf['Sum']=newemissionsdf.sum(axis=1,skipna=True)
+# get the sum of countries for each year
+newemissionsdf['Avg']=newemissionsdf.Sum/28
 # divide the sum by 28 since there are 28 countries to get the average value
 # for each yearxbar = np.mean(newemissionsdf.Avg)
 # mean emission/capita of the mean values for each years = np.std(newemissionsdf.Avg,ddof=1)
-# standard deviation emission/capita of the mean values for each yearn = len(newemissionsdf.Avg) # number of yearststar = t.ppf(.975, n-1) # tstarlcl = xbar - tstar*s/np.sqrt(n) #lower bounducl = xbar + tstar*s/np.sqrt(n) #upper boundprint("95% confidence interval for Emissions/Capita for NATO: ")print([lcl,ucl])# GDP/Capita for NATO countriesgdplogdf['Sum']=gdplogdf.sum(axis=1,skipna=True)
-# get the sum of countries for each yeargdplogdf['Avg']=gdplogdf.Sum/28
-# divide the sum by 28 since there are 28 countries to get the average
- value for each year
-```
+# standard deviation emission/capita of the mean values for each yearn = len(newemissionsdf.Avg) # number of years
+tstar = t.ppf(.975, n-1) # tstar
+lcl = xbar - tstar*s/np.sqrt(n) #lower bound
+ucl = xbar + tstar*s/np.sqrt(n) #upper bound
+print("95% confidence interval for Emissions/Capita for NATO: ")
+print([lcl,ucl])
 
-```r
+# GDP/Capita for NATO countriesgdplogdf['Sum']=gdplogdf.sum(axis=1,skipna=True)
+# get the sum of countries for each year
+gdplogdf['Avg']=gdplogdf.Sum/28
+# divide the sum by 28 since there are 28 countries to get the average value for each year
 xbar = np.mean(gdplogdf.Avg)
 # mean GDP/capita of the mean values for each years = np.std(gdplogdf.Avg,ddof=1)
-# standard deviation GDP/capita of the mean values for each yearn = len(gdplogdf.Avg) # number of yearststar = t.ppf(.975, n-1) # tstarnewlcl = xbar - tstar*s/np.sqrt(n) #lower boundnewucl = xbar + tstar*s/np.sqrt(n) #upper bound
-print("95% confidence interval for GDP/Capita for NATO: ")print([newlcl,newucl])
-# Efficiency of productivity for NATO countries[lcl/newlcl, ucl/newucl]# Emission/Capita for the United States...# GDP/Capita for the United States...### TIME SERIES ###newemissionsdf # CO2/Capitagdplogdf # GDP/Capitacogdpdf = newemissionsdf/gdplogdf # CO2/GDPemmeans = newemissionsdf.mean(axis=1) # Emissions means of all NATO nationsgdpmeans = gdplogdf.mean(axis=1) # GDP means of all NATO nationscogdpmeans = cogdpdf.mean(axis=1) # Emissions/GDP of all NATO nationsusem = newemissionsdf['United States'] # US emissions/capitausgdp = gdplogdf['United States'] # US GDP/capitauscogdp = cogdpdf['United States'] # US emissions/GDP# TS plot of US emissions/capitausem.plot()...# ACF and PACFdta = usemacf = sm.graphics.tsa.plot_acf(dta.values, lags=40)acf.show()pacf = sm.graphics.tsa.plot_pacf(dta.values, lags=40)pacf.show()
+# standard deviation GDP/capita of the mean values for each year
+n = len(gdplogdf.Avg) # number of years
+tstar = t.ppf(.975, n-1) # tstar
+newlcl = xbar - tstar*s/np.sqrt(n) #lower bound
+newucl = xbar + tstar*s/np.sqrt(n) #upper bound
+
+print("95% confidence interval for GDP/Capita for NATO: ")
+print([newlcl,newucl])
+
+# Efficiency of productivity for NATO countries
+[lcl/newlcl, ucl/newucl]
+
+# Emission/Capita for the United States
+...
+
+# GDP/Capita for the United States
+...
+
+### TIME SERIES ###
+newemissionsdf # CO2/Capita
+gdplogdf # GDP/Capita
+cogdpdf = newemissionsdf/gdplogdf # CO2/GDP
+
+emmeans = newemissionsdf.mean(axis=1) # Emissions means of all NATO nations
+gdpmeans = gdplogdf.mean(axis=1) # GDP means of all NATO nations
+cogdpmeans = cogdpdf.mean(axis=1) # Emissions/GDP of all NATO nations
+
+usem = newemissionsdf['United States'] # US emissions/capitaus
+gdp = gdplogdf['United States'] # US GDP/capita
+uscogdp = cogdpdf['United States'] # US emissions/GDP
+
+# TS plot of US emissions/capita
+usem.plot()
+...
+
+# ACF and PACF
+dta = usem
+acf = sm.graphics.tsa.plot_acf(dta.values, lags=40)
+acf.show()
+pacf = sm.graphics.tsa.plot_pacf(dta.values, lags=40)
+pacf.show()
 ```
 
 ```r
-# Let's try some models.for i in range(0,4):    for j in range(0,4):        try:            print("The model is ARMA with coefficients ",i,"and",j)            somemodel = sm.tsa.ARMA(dta,(i,j)).fit()            print("The AIC estimate is.")            print(somemodel.aic)        except:            print("None")            pass# We can see that the best estimate is an ARMA(1,3) or ARMA(2,2).# Try bic now....# ARMA(2,2) is the best model by a small margin. Now make the next few# prediction values using this model.model = sm.tsa.ARMA(dta, (2,2)).fit()pred = model.predict("2016","2046",dynamic=False)predict = pd.concat([dta,pred]).plot()
+# Let's try some models.
+for i in range(0,4):
+  for j in range(0,4):
+    try:
+      print("The model is ARMA with coefficients ",i,"and",j)
+      somemodel = sm.tsa.ARMA(dta,(i,j)).fit()            
+      print("The AIC estimate is.")            
+      print(somemodel.aic)     
+    except:
+      print("None")
+      pass
+
+# We can see that the best estimate is an ARMA(1,3) or ARMA(2,2).
+# Try bic now....
+
+# ARMA(2,2) is the best model by a small margin. Now make the next few prediction values using this model.
+model = sm.tsa.ARMA(dta, (2,2)).fit()
+pred = model.predict("2016","2046",dynamic=False)
+predict = pd.concat([dta,pred]).plot()
 ```
 
 [1] The only country which is missing data completely is the Czech Republic. This reduces the number of countries analyzed from 28 to 27.
